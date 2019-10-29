@@ -1,4 +1,4 @@
-## mws-readers-report
+## mws-orders-sheet
 [![Apps Script](https://img.shields.io/badge/Google%20Apps%20Script-green?style=flat)](https://script.google.com)
 
 App Script to periodically fetch new orders from Amazon MWS

@@ -1,12 +1,12 @@
 {
-  "name": "mws-readers-report",
-  "version": "1.0.0",
+  "name": "mws-orders-sheet",
+  "version": "0.0.1",
   "description": "App Script to periodically fetch new orders from Amazon MWS",
-  "main": "index.js",
+  "main": "index.ts",
   "author": "Maxmillion McLaughlin",
   "license": "MIT",
   "private": false,
-  "repository": "https://github.com/maxmclau/mws-readers-report",
+  "repository": "https://github.com/maxmclau/mws-orders-sheet",
   "dependencies": {
     "@types/google-apps-script": "^0.0.62"
   }
