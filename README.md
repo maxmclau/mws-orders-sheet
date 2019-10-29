@@ -7,14 +7,14 @@ App Script to periodically fetch new orders from Amazon MWS
 Working with the add-on requires Google's clasp *(Command Line for Apps Script Projects)*
 
 ```bash
-$ npm install -g @google/clasp
-$ npm install
+$ yarn global add @google/clasp
 ```
 
 #### Build
 Most configuration and debuging of the add-on is done through [G Suite Developer Hub](https://script.google.com/home).
 
 ```bash
+$ yarn install
 $ clasp push --watch
 ```
 
