@@ -7,8 +7,8 @@ App Script to periodically fetch new orders from Amazon MWS
 Working with the add-on requires Google's clasp *(Command Line for Apps Script Projects)*
 
 ```bash
-$ yarn install -g @google/clasp
-$ yarn install
+$ npm install -g @google/clasp
+$ npm install
 ```
 
 #### Build
