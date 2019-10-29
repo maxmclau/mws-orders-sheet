@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": false,
   "repository": "https://github.com/maxmclau/mws-orders-sheet",
-  "dependencies": {
+  "devDependencies": {
     "@types/google-apps-script": "^0.0.62"
   }
 }
