@@ -1,74 +1,64 @@
-const MENU_TITLE = 'Configuration';
-const SECRETS_PROPERTY = 'secrets';
+const MENU_TITLE = 'MWS';
+const CONFIG_PROPERTY = 'configuration';
 
-interface Secret {
-  readonly id: number,
-  readonly name: string,
-  readonly handler: string,
-  value: string
+interface ReportConfiguration {
+  seller_id: string,
+  auth_token: string,
+  frequency: number
 }
 
-enum Credentials {
-  SellerID,
-  AuthToken
+var config:ReportConfiguration = {
+  seller_id: undefined,
+  auth_token: undefined,
+  frequency: 5
 }
-
-const secrets:Array<Secret> = [
-  {
-    id: Credentials.SellerID,
-    name: 'Seller ID',
-    handler: 'setSellerId',
-    value: null
-  },
-  {
-    id: Credentials.AuthToken,
-    name: 'Auth Token',
-    handler: 'setAuthToken',
-    value: null
-  }
-]
 
 function onOpen(e: MessageEvent) {
-  const ui = SpreadsheetApp.getUi()
-  const menu = ui.createMenu(MENU_TITLE)
-
-  secrets.forEach((secret: Secret) => {
-    menu.addItem(secret.name, secret.handler)
-  })
-
-  menu.addSeparator()
-    .addSubMenu(ui
-      .createMenu('Triggers')
-      .addItem('Set Interval', 'setTrigger')
-      .addItem('Reset Triggers', 'resetTriggers')
-    )
-
-  menu.addSeparator()
-    .addItem('Reset Credentials', 'resetProperties')
-
-  menu.addSeparator()
-    .addItem('Force Update', 'fetchOrders')
+  SpreadsheetApp.getUi()
+    .createMenu(MENU_TITLE)
+    .addItem('Configure Report', 'showConfiguration')
+    .addItem('Update Report', 'fetchOrders')
+    .addSeparator()
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('Utilities')
+      .addItem('Reset Configuration', 'resetProperties')
+      .addItem('Clear Triggers', 'clearTriggers'))
     .addToUi()
 }
 
-function getSecrets():Array<Secret> {
-  const properties = PropertiesService.getDocumentProperties().getProperty(SECRETS_PROPERTY)
-  const secrets = JSON.parse(properties)
+function showConfiguration() {
+  var html = HtmlService.createHtmlOutputFromFile('modal')
+      .setWidth(240)
+      .setHeight(350)
 
-  return secrets
+  SpreadsheetApp.getUi()
+      .showModalDialog(html, `${MENU_TITLE} Configuration`)
 }
 
-function setSellerId() {
-  const i = secrets.findIndex(item => item.id == Credentials.SellerID);
+function getConfiguration():ReportConfiguration {
+  const property = PropertiesService.getDocumentProperties().getProperty(CONFIG_PROPERTY)
 
-  promptForSecret(secrets[i])
+  if(property) {
+    config = JSON.parse(property) as ReportConfiguration
+  }
+
+  return config
 }
 
-function setAuthToken() {
-  const i = secrets.findIndex(item => item.id == Credentials.AuthToken);
+function setConfiguration(updated: ReportConfiguration):Boolean {
+  try{
+    PropertiesService.getDocumentProperties().setProperty(CONFIG_PROPERTY, JSON.stringify(updated))
+    SpreadsheetApp.getActiveSpreadsheet().toast(`Script configuration saved.`)
 
-  promptForSecret(secrets[i])
+    return false
+  } catch(err) {
+    console.log(err)
+
+    SpreadsheetApp.getActiveSpreadsheet().toast(`Error saving configuration.`)
+
+    return true
+  }
 }
+
 
 function resetProperties() {
   PropertiesService.getDocumentProperties().deleteAllProperties()
@@ -76,7 +66,7 @@ function resetProperties() {
   SpreadsheetApp.getActiveSpreadsheet().toast(`Credentials for script cleared.`)
 }
 
-function resetTriggers() {
+function clearTriggers() {
   var triggers = ScriptApp.getProjectTriggers();
 
   for (var i = 0; i < triggers.length; i++) {
@@ -144,15 +134,6 @@ function setTrigger() {
 }
 
 function fetchOrders() {
-  /*var query = '"Apps Script" stars:">=100"';
-  var url = 'https://api.github.com/search/repositories'
-    + '?sort=stars'
-    + '&q=' + encodeURIComponent(query);
-
-  var response = UrlFetchApp.fetch(url, {'muteHttpExceptions': true});
-  Logger.log(response);
-  */
-
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheets()[0];
 

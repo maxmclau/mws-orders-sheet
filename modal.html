@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-async-computed@3.7.0"></script>
+
+    <script>
+      const gas = function () {
+        var gs = {};
+        var ks = Object.keys(google.script.run);
+
+        for (var i=0; i < ks.length; i++) {
+          gs[ks[i]] = (function(k) {
+            return function() {
+              var args = arguments;
+
+              return new Promise(function(resolve, reject) {
+                google.script.run
+                  .withSuccessHandler(resolve)
+                  .withFailureHandler(reject)
+                  [k].apply(google.script.run, args);
+              });
+            }
+          })(ks[i])
+        }
+
+        return gs;
+      }();
+    </script>
+
+    <style>
+      .form-group.block input[type=text],
+      .form-group.block textarea {
+        margin-top: 6px;
+        width: 100%;
+      }
+
+      .form-group.block.buttons {
+        margin-top: 36px;
+      }
+
+      .form-group.block.anchor-bottom {
+        position: absolute;
+        bottom: 0;
+      }
+
+      svg#filters {
+        position: absolute;
+        height: 128px;
+        visibility: hidden;
+        top: -128px;
+      }
+
+      label + label {
+        display: block;
+      }
+
+      span.super-secondary {
+        font-size: 9px;
+      }
+
+      span.super-secondary a {
+        color: inherit;
+      }
+
+      span.super-secondary a:visited {
+        color: inherit;
+      }
+
+      span.super-secondary a:hover {
+        color:#0000ff;
+        filter: url("#turbulance-filter-heavy");
+        -webkit-filter: url("#turbulance-filter-heavy");
+      }
+    </style>
+  </head>
+
+  <body>
+    <svg id="filters" xmlns="http://www.w3.org/2000/svg" version="1.1">
+      <defs>
+        <filter id="turbulance-filter-heavy">
+          <feTurbulence type="turbulence" baseFrequency="0.015 0.1" numOctaves="1" seed="1" />
+          <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="9" xChannelSelector="R" yChannelSelector="B" />
+        </filter>
+      </defs>
+    </svg>
+
+    <div id="app">
+      <div class="block form-group">
+        <label for="seller_id">Seller ID</label>
+        <label for="seller_id" class="secondary">Enter your Amazon MWS Seller ID</label>
+
+        <input type="text" id="seller_id" v-model.lazy="configuration.seller_id">
+      </div>
+
+      <div class="block form-group">
+        <label for="auth_token">Auth Token</label>
+        <label for="auth_token" class="secondary">Enter your Amazon MWS provided Auth Token</label>
+
+        <textarea id="auth_token" rows="3" v-model.lazy="configuration.auth_token"></textarea>
+      </div>
+
+      <div class="block form-group">
+        <label for="frequency">Report Frequency</label>
+        <label for="frequency" class="secondary">Select frequency you'd like the report to run at.</label>
+
+        <select id="frequency" v-model.number="configuration.frequency">
+          <option value="5">5 minutes</option>
+          <option value="10">10 minutes</option>
+          <option value="15">15 minutes</option>
+          <option value="30">30 minutes</option>
+        </select>
+      </div>
+
+      <div class="block form-group buttons">
+        <button class="action" :disabled="saving" v-on:click="save">Save</button>
+        <button>Test Connection</button>
+      </div>
+
+      <div class="block form-group anchor-bottom">
+          <span class="super-secondary">Made by <a onclick="window.open('https://maxmclau.com')">Max McLaughlin</a></span>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        saving: false
+      },
+      methods: {
+        async save() {
+          this.saving = true;
+
+          this.saving = await gas.setConfiguration(this.configuration)
+        }
+      },
+      asyncComputed: {
+        configuration: {
+          get() {
+            return gas.getConfiguration()
+          },
+
+          default: {
+            seller_id: 'Loading...',
+            auth_token: 'Loading...',
+            frequency: 5
+          }
+        }
+      }
+    })
+  </script>
+</html>

@@ -9,5 +9,6 @@
   "repository": "https://github.com/maxmclau/mws-orders-sheet",
   "devDependencies": {
     "@types/google-apps-script": "^0.0.62"
-  }
+  },
+  "dependencies": {}
 }
